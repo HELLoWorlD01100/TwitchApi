@@ -3,9 +3,10 @@ using System.IO;
 
 namespace TwitchAPI
 {
-    public class Requests
+    public static class Requests
     {
-        private static string replacedString = "##REPLACETHIS##";
+        private static readonly string replacedString = "##REPLACETHIS##";
+
         public static string GetPlaybackAccessToken_TemplateRequest(string input)
         {
             const string fileName = "PlaybackAccessToken_TemplateRequest.json";
@@ -18,7 +19,7 @@ namespace TwitchAPI
         public static string GetStreamsRequest()
         {
             const string fileName = "StreamsRequest.json";
-            
+
             if (!TryGetRequest(fileName, out var result))
                 throw new Exception($"File {fileName} not exists.");
 
@@ -28,7 +29,7 @@ namespace TwitchAPI
         public static string GetSearchResultsPage_SearchResultsRequest(string input)
         {
             const string fileName = "SearchResultsPage_SearchResultsRequest.json";
-            
+
             if (!TryGetRequest(fileName, out var result))
                 throw new Exception($"File {fileName} not exists.");
 
@@ -38,7 +39,7 @@ namespace TwitchAPI
         private static bool TryGetRequest(string fileName, out string result)
         {
             result = default;
-            
+
             var relativePath = GetRelativePath(fileName);
             if (!File.Exists(relativePath))
                 return false;
