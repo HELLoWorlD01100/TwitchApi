@@ -13,10 +13,10 @@ namespace TwitchAPI
             var jArr = JArray.Parse(responseContent);
             if (!(jArr.First() is JObject jArrElement))
                 throw new ArgumentException($"Wrong response. {jArr}");
-            
+
             if (!jArrElement.ContainsKey("data") || !(jArrElement["data"] is JObject dataValue))
                 throw new ArgumentException($"Wrong response. {jArrElement}");
-            
+
             if (!dataValue.ContainsKey("streams") || !(dataValue["streams"] is JObject streams))
                 throw new ArgumentException($"Wrong response. {dataValue}");
 
@@ -38,11 +38,44 @@ namespace TwitchAPI
             }
         }
 
+        public static bool VideoPlayerStatusOverlayChannelResponseParseUserIsOnline(string responseContent)
+        {
+            var jArr = JArray.Parse(responseContent);
+            if (!(jArr.First() is JObject jArrElement))
+                throw new ArgumentException($"Wrong response. {jArr}");
+
+            if (!jArrElement.ContainsKey("data") || !(jArrElement["data"] is JObject dataValue))
+                throw new ArgumentException($"Wrong response. {jArrElement}");
+
+            if (!dataValue.ContainsKey("user") || !(dataValue["user"] is JObject userValue))
+                throw new ArgumentException($"Wrong response. {dataValue}");
+
+            if (!userValue.TryGetValue("stream", out var stream))
+                throw new ArgumentException($"Wrong response. {userValue}");
+
+            return stream.HasValues;
+        }
+
+        public static bool VideoPlayerStatusOverlayChannelResponseParseUserAvailable(string responseContent)
+        {
+            var jArr = JArray.Parse(responseContent);
+            if (!(jArr.First() is JObject jArrElement))
+                throw new ArgumentException($"Wrong response. {jArr}");
+
+            if (!jArrElement.ContainsKey("data") || !(jArrElement["data"] is JObject dataValue))
+                throw new ArgumentException($"Wrong response. {jArrElement}");
+
+            if (!dataValue.TryGetValue("user", out var user))
+                throw new ArgumentException($"Wrong response. {dataValue}");
+
+            return user.HasValues;
+        }
+
         private static bool TryParseNode(JObject node,
             out (string Broadcaster, string Title, string PrewiewImageUrl, string GameName, int ViewersCount) result)
         {
             result = default;
-            
+
             if (!node.TryGetValue("title", out var title))
                 return false;
 
@@ -67,9 +100,11 @@ namespace TwitchAPI
             if (!broadcaster.TryGetValue("login", out var broadcasterName))
                 return false;
 
-            result = (broadcasterName.ToString(), title.ToString(), previewImageUrl.ToString(), gameName.ToString(), viewersCount);
+            result = (broadcasterName.ToString(), title.ToString(), previewImageUrl.ToString(), gameName.ToString(),
+                viewersCount);
             return true;
         }
+
         public static (string Token, string Signature) PlaybackAccessToken_TemplateResponseParse(string responseContent)
         {
             var jObj = JObject.Parse(responseContent);
@@ -93,28 +128,28 @@ namespace TwitchAPI
 
             if (!(jArr.First() is JObject jArrElement))
                 throw new ArgumentException($"Wrong response. {jArr}");
-            
+
             if (!jArrElement.ContainsKey("data") || !(jArrElement["data"] is JObject dataValue))
                 throw new ArgumentException($"Wrong response. {jArrElement}");
 
             if (!dataValue.ContainsKey("searchFor") || !(dataValue["searchFor"] is JObject searchForValue))
                 throw new ArgumentException($"Wrong response. {dataValue}");
 
-            
+
             if (!searchForValue.ContainsKey("channels") || !(searchForValue["channels"] is JObject channelsValue))
                 throw new ArgumentException($"Wrong response. {searchForValue}");
 
             if (!channelsValue.ContainsKey("edges") || !(channelsValue["edges"] is JArray edges))
                 throw new ArgumentException($"Wrong response. {channelsValue}");
-            
+
             foreach (var edgeToken in edges)
             {
                 if (!(edgeToken is JObject edge))
                     throw new ArgumentException($"Wrong response. {edgeToken}");
-                
+
                 if (!edge.ContainsKey("item") || !(edge["item"] is JObject item))
                     throw new ArgumentException($"Wrong response. {edge}");
-                
+
                 var streamDto = TryParseItemForStream(item, out var streamInfo) ? new StreamDto(streamInfo) : null;
                 if (!TryParseItemForUser(item, out var userInfo))
                     throw new ArgumentException();
@@ -133,7 +168,7 @@ namespace TwitchAPI
 
             if (!item.TryGetValue("login", out var broadcaster))
                 return false;
-            
+
             if (!streamJToken.HasValues || !(streamJToken is JObject stream))
                 return false;
 
@@ -142,7 +177,7 @@ namespace TwitchAPI
 
             if (!broadcastSettings.TryGetValue("title", out var title))
                 return false;
-            
+
             if (!stream.ContainsKey("game") || !(stream["game"] is JObject game))
                 return false;
 
@@ -154,11 +189,12 @@ namespace TwitchAPI
 
             if (!stream.TryGetValue("viewersCount", out var viewersCountJToken))
                 return false;
-            
+
             if (!int.TryParse(viewersCountJToken.ToString(), out var viewersCount))
                 return false;
 
-            result = (broadcaster.ToString(), title.ToString(), previewImageUrl.ToString(), gameName.ToString(), viewersCount);
+            result = (broadcaster.ToString(), title.ToString(), previewImageUrl.ToString(), gameName.ToString(),
+                viewersCount);
 
             return true;
         }
@@ -169,13 +205,13 @@ namespace TwitchAPI
             result = default;
             if (!item.TryGetValue("login", out var name))
                 return false;
-            
+
             if (!item.TryGetValue("profileImageURL", out var profileImageUrl))
                 return false;
 
             if (!item.TryGetValue("description", out var userDescription))
-                return false; 
-          
+                return false;
+
             if (!item.ContainsKey("followers") || !(item["followers"] is JObject followers))
                 return false;
 
