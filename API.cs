@@ -69,7 +69,7 @@ namespace TwitchAPI
             return JsonResponseParser.SearchResultsPage_SearchResultsResponseParse(responseContent);
         }
 
-        public static async Task<bool> UserIsOnline(string userLogin)
+        public async Task<bool> UserIsOnline(string userLogin)
         {
             var requestData = Requests.GetVideoPlayerStatusOverlayChannelRequest(userLogin);
             var response = await SendRequestAsync(requestData);
@@ -77,7 +77,7 @@ namespace TwitchAPI
             return JsonResponseParser.VideoPlayerStatusOverlayChannelResponseParseUserIsOnline(responseContent);
         }
 
-        public static async Task<bool> UserAvailable(string userLogin)
+        public async Task<bool> UserAvailable(string userLogin)
         {
             var requestData = Requests.GetVideoPlayerStatusOverlayChannelRequest(userLogin);
             var response = await SendRequestAsync(requestData);
